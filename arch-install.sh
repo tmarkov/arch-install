@@ -7,7 +7,7 @@ function progress() {
 SYSTEMD="iptsd"
 SYSTEMD_DESKTOP="NetworkManager bluetooth avahi-daemon"
 UGROUPS="audio video storage optical network users wheel games rfkill scanner power lp"
-PACKAGES="base-devel linux- cmake dosfstools gptfdisk intel-ucode neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils"
+PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils"
 PACKAGES_LINUX_SURFACE="linux-surface-headers linux-surface iptsd"
 PACKAGE_DESKTOP="xorg xorg-drivers xorg-apps xf86-input-evdev xf86-input-synaptics"
 PACKAGE_DESKTOP_GTK="paprefs qt5-styleplugins"
@@ -30,7 +30,7 @@ PACKAGE_EXT_CONSOLE="zsh unp lxc debootstrap rsnapshot youtube-dl samba android-
 PACKAGE_EXT_OPTIMUS="bumblebee lib32-virtualgl nvidia lib32-nvidia-utils primus lib32-primus bbswitch"
 PACKAGE_EXT_FONTS="ttf-liberation ttf-ubuntu-font-family ttf-droid ttf-dejavu gnu-free-fonts noto-fonts-emoji"
 PACKAGE_EXT_CODECS="gst-plugins-ugly gst-plugins-bad gst-libav ffmpeg"
-PACKAGE_EXT_APPS="mpv atom firefox vlc gimp libreoffice lib32-libpulse pulseaudio-zeroconf picard audacity onboard redshift xournalpp"
+PACKAGE_EXT_APPS="mpv atom firefox libreoffice lib32-libpulse pulseaudio-zeroconf audacity onboard redshift xournalpp code"
 PACKAGE_EXT_APPS_GAMING="steam"
 PACKAGE_EXT_APPS_GTK="gtk-recordmydesktop openshot gcolor2 meld gparted evince"
 PACKAGE_EXT_APPS_QT="qbittorrent"
@@ -327,12 +327,6 @@ else
   HAS_OPTIMUS=off
 fi
 
-if [ "$(cat /sys/class/graphics/fb0/virtual_size)" = "3000,2000" ]; then
-  MATEBOOK=on
-else
-  MATEBOOK=off
-fi
-
 TWEAKS=$(dialog --clear --title "Tweaks" --checklist "Select Custom Tweaks" 0 0 0 \
   SURFACE "Install surface kernel" on\
   NO_HIDPI "Disable HiDPI Scaling" off\
@@ -594,6 +588,11 @@ for package in $PACKAGES_VALID; do
     fi
   done
 done
+
+progress "Install Pamac..."
+git clone https://aur.archlinux.org/pamac-aur.git /mnt/tmp/build_pamac
+arch-chroot /mnt /bin/bash -c "makepkg -sic BUILDDIR='/tmp/build_pamac'"
+rm -r /mnt/tmp/build_pamac
 
 progress "Configure Desktop..."
 
