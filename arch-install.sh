@@ -7,7 +7,7 @@ function progress() {
 SYSTEMD="iptsd"
 SYSTEMD_DESKTOP="NetworkManager bluetooth avahi-daemon"
 UGROUPS="audio video storage optical network users wheel games rfkill scanner power lp"
-PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils i2c-tools"
+PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode vi neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils i2c-tools"
 PACKAGES_LINUX_SURFACE="linux-surface-headers linux-surface iptsd"
 PACKAGE_DESKTOP="xorg xorg-drivers xorg-apps xf86-input-evdev xf86-input-synaptics"
 PACKAGE_DESKTOP_GTK="paprefs qt5-styleplugins"
@@ -465,6 +465,7 @@ if [ "$SURFACE_TWEAKS" = "y" ]; then
   chmod +x /mnt/usr/local/bin/detach.sh
   echo "${systemd_sleep}" > /mnt/lib/systemd/system-sleep/sleep
   chmod +x /mnt/lib/systemd/system-sleep/sleep
+  echo "i2c-dev" >> /mnt/etc/modules-load.d/i2c.conf
 fi
 
 # use default encrypt hook
@@ -597,7 +598,7 @@ arch-chroot /mnt /bin/bash -c "passwd"
 progress "Create User..."
 echo "${USERNAME} ALL=(ALL) ALL" >> /mnt/etc/sudoers
 if [ "$SURFACE_TWEAKS" = "y" ]; then
-  echo "${USERNAME} ALL=(root) NOPASSWD: /usr/local/bin/detach.sh"
+  echo "${USERNAME} ALL=(root) NOPASSWD: /usr/local/bin/detach.sh" >> /mnt/etc/sudoers
 fi
 
 arch-chroot /mnt /bin/bash -c "useradd -m ${USERNAME}"
