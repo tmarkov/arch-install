@@ -7,7 +7,7 @@ function progress() {
 SYSTEMD="iptsd"
 SYSTEMD_DESKTOP="NetworkManager bluetooth avahi-daemon"
 UGROUPS="audio video storage optical network users wheel games rfkill scanner power lp"
-PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils"
+PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils i2c-tools"
 PACKAGES_LINUX_SURFACE="linux-surface-headers linux-surface iptsd"
 PACKAGE_DESKTOP="xorg xorg-drivers xorg-apps xf86-input-evdev xf86-input-synaptics"
 PACKAGE_DESKTOP_GTK="paprefs qt5-styleplugins"
@@ -26,7 +26,7 @@ PACKAGE_DESKTOP_DEEPIN_APPS="deepin deepin-extra networkmanager"
 PACKAGE_DESKTOP_DEEPIN_DM="lightdm"
 PACKAGE_DESKTOP_HTPC="gnome gnome-extra chrome-gnome-shell networkmanager steam kodi kodi kodi-addons kodi-addons-visualization"
 PACKAGE_DESKTOP_HTPC_DM="gdm"
-PACKAGE_EXT_CONSOLE="zsh unp lxc debootstrap rsnapshot youtube-dl samba android-tools fuseiso libnotify"
+PACKAGE_EXT_CONSOLE="fish unp lxc debootstrap rsnapshot youtube-dl samba android-tools fuseiso libnotify"
 PACKAGE_EXT_OPTIMUS="bumblebee lib32-virtualgl nvidia lib32-nvidia-utils primus lib32-primus bbswitch"
 PACKAGE_EXT_FONTS="ttf-liberation ttf-ubuntu-font-family ttf-droid ttf-dejavu gnu-free-fonts noto-fonts-emoji"
 PACKAGE_EXT_CODECS="gst-plugins-ugly gst-plugins-bad gst-libav ffmpeg"
@@ -49,10 +49,11 @@ HOSTNAME=todor-surface
 
 # external scripts
 
-detach='#!/bin/bash
+IFS='' read -r -d '' detach <<"EOF"
+#!/bin/bash
 
 notify_all(){
-    user_list=($(who | grep -E "\(:[0-9](\.[0-9])*\)" | awk '\''{print $1 "@" $NF}'\'' | sort -u))
+    user_list=($(who | grep -E "\(:[0-9](\.[0-9])*\)" | awk '{print $1 "@" $NF}' | sort -u))
 
     for user in $user_list; do
         username=${user%@*}
@@ -70,7 +71,7 @@ scmd(){
         0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 i
 }
 
-ibus=$(ls -lh /sys/bus/i2c/devices/ | grep "MSHW0030" | tr '\''/'\'' '\''\n'\'' | grep i2c- | grep -v MSHW0030:00 | cut -d- -f 2)
+ibus=$(ls -lh /sys/bus/i2c/devices/ | grep "MSHW0030" | tr '/' '\n' | grep i2c- | grep -v MSHW0030:00 | cut -d- -f 2)
 
 umount /run/media/*/*
 if [ $(ls /run/media/* | wc -w) -eq 0 ];
@@ -81,10 +82,12 @@ then
         notify_all -h int:transient:1 "Detach failed" "$error"
     fi
 else
-    notify_all -h int:transient:1 "Detach failed" "Could not unmount drives"
-fi'
+    notify_all -h int:transient:1 "Detach failed" "Couldn't unmount drives"
+fi
+EOF
 
-systemd_sleep='#!/bin/bash
+IFS='' read -r -d '' systemd_sleep <<"EOF"
+#!/bin/bash
 case $1 in
   pre)
     # unload the modules before going to sleep
@@ -96,7 +99,8 @@ case $1 in
       echo freeze > /sys/power/state
     done
     ;;
-esac'
+esac
+EOF
 
 # clean previous install attempts
 umount -R /mnt &> /dev/null || true
@@ -457,9 +461,9 @@ if [ "$NO_HIDPI" = "y" ]; then
 fi
 
 if [ "$SURFACE_TWEAKS" = "y" ]; then
-  echo $detach > /mnt/usr/local/bin/detach.sh
+  echo "${detach}" > /mnt/usr/local/bin/detach.sh
   chmod +x /mnt/usr/local/bin/detach.sh
-  echo $systemd_sleep > /mnt/lib/systemd/system-sleep/sleep
+  echo "${systemd_sleep}" > /mnt/lib/systemd/system-sleep/sleep
   chmod +x /mnt/lib/systemd/system-sleep/sleep
 fi
 
@@ -605,7 +609,6 @@ arch-chroot /mnt /bin/bash -c "echo \"${USERNAME}:${USERPW}\" | chpasswd"
 arch-chroot /mnt /bin/bash -c "echo \"root:${USERPW}\" | chpasswd"
 
 ln -s /home/${USERNAME}/.bashrc /mnt/root/.bashrc
-ln -s /home/${USERNAME}/.zshrc /mnt/root/.zshrc
 
 if [ "$DESKTOP" = "HTPC" ]; then
   # setting up HTPC user
