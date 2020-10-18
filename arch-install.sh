@@ -7,7 +7,7 @@ function progress() {
 SYSTEMD="iptsd"
 SYSTEMD_DESKTOP="NetworkManager bluetooth avahi-daemon"
 UGROUPS="audio video storage optical network users wheel games rfkill scanner power lp"
-PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode vi neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils i2c-tools"
+PACKAGES="base-devel cmake dosfstools gptfdisk intel-ucode vi neovim openssh git wget htop ncdu screen net-tools unrar unzip p7zip rfkill bind-tools alsa-utils i2c-tools openvpn easy-rsa networkmanager-openvpn"
 PACKAGES_LINUX_SURFACE="linux-surface-headers linux-surface iptsd"
 PACKAGE_DESKTOP="xorg xorg-drivers xorg-apps xf86-input-evdev xf86-input-synaptics"
 PACKAGE_DESKTOP_GTK="paprefs qt5-styleplugins"
