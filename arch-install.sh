@@ -30,7 +30,7 @@ PACKAGE_EXT_CONSOLE="fish unp lxc debootstrap rsnapshot youtube-dl samba android
 PACKAGE_EXT_OPTIMUS="bumblebee lib32-virtualgl nvidia lib32-nvidia-utils primus lib32-primus bbswitch"
 PACKAGE_EXT_FONTS="ttf-liberation ttf-ubuntu-font-family ttf-droid ttf-dejavu gnu-free-fonts noto-fonts-emoji"
 PACKAGE_EXT_CODECS="gst-plugins-ugly gst-plugins-bad gst-libav ffmpeg"
-PACKAGE_EXT_APPS="mpv atom firefox libreoffice lib32-libpulse pulseaudio-zeroconf audacity onboard redshift xournalpp code"
+PACKAGE_EXT_APPS="mpv atom firefox libreoffice lib32-libpulse pulseaudio-zeroconf audacity onboard redshift xournalpp code x2goclient"
 PACKAGE_EXT_APPS_GAMING="steam"
 PACKAGE_EXT_APPS_GTK="gtk-recordmydesktop openshot gcolor2 meld gparted evince"
 PACKAGE_EXT_APPS_QT="qbittorrent"
@@ -100,6 +100,19 @@ case $1 in
     done
     ;;
 esac
+EOF
+
+IFS='' read -r -d '' aur_setup <<"EOF"
+AUR_MATE_APPS="mate-tweak brisk-menu mate-window-buttons-applet lightdm-slick-greeter"
+AUR_EXT_APPS="zoom slack-desktop skypeforlinux-stable-bin"
+AUR_INFORMANT="informant"
+
+git clone https://aur.archlinux.org/pamac-aur.git /tmp/build_pamac
+makepkg -sic BUILDDIR='/tmp/build_pamac'
+rm -r /tmp/build_pamac
+pamac build $AUR_MATE_APPS
+pamac build $AUR_EXT_APPS
+pamac build $AUR_INFORMANT
 EOF
 
 # clean previous install attempts
@@ -520,11 +533,6 @@ for package in $PACKAGES_VALID; do
   arch-chroot /mnt /bin/bash -c "while ! pacman -S --noconfirm --needed $package; do echo repeat...; done"
 done
 
-progress "Install Pamac..."
-git clone https://aur.archlinux.org/pamac-aur.git /mnt/tmp/build_pamac
-arch-chroot /mnt /bin/bash -c "makepkg -sic BUILDDIR='/tmp/build_pamac'"
-rm -r /mnt/tmp/build_pamac
-
 progress "Configure Desktop..."
 
 case $DESKTOP in
@@ -654,6 +662,6 @@ for service in $SYSTEMD; do
   arch-chroot /mnt /bin/bash -c "systemctl enable ${service}"
 done
 
+echo "${aur_setup}" > /mnt/tmp/aur_setup.sh
 sync
 
-reboot
